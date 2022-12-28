@@ -2,4 +2,6 @@ server:
   port: 8765
 
 app:
-  root-path: '/ferry'
+  root-path: 'C:\'
+
+

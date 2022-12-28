@@ -13,8 +13,9 @@
 <h2>Directory List</h2>
 
 <div class="box">
-	<ul th:if="${!(upperPath?.isEmpty()?:true)}">
-		<li><a th:href="${upperPath}">...</a></li>
+	<ul class="directory-list">
+		<li class="home"><a th:href="${home}">home</a></li>
+		<li class="up" th:if="${!(upperPath?.isEmpty()?:true)}"><a th:href="${upperPath}">...</a></li>
 	</ul>
 	<h3 th:if="${!(error?.isEmpty()?:true)}" th:text="${error}"></h3>
 	<ul class="directory-list" th:each="file: ${files}">
@@ -118,4 +119,19 @@
         background-position: center top;
         background-size: 75% auto;
     }
+
+    .directory-list li.home:before {
+        /* folder icon if folder class is specified */
+        background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAuQAAALkB4qdB6AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGHSURBVEiJ3daxaxRREAbw31MLJVW6mBMrSWqDoBaCRRr7FCLEPyDapUtlkz4GUqe1spc0IojFEbANWKXxKrsjAWPG4mbj3rG525NcoQ8+2J033/exM29nt0SEWa5rM1XHjbaJpZRbeJ637yLiJOPzeI3rufchIr5cECNiInAHh4jEITq597QWD+zUuRNLVEp5iC5WauEVdEspDybxxxqUUl7gIxZwhleJM9zGJ6yNdbikJAXb/jz2D6ziWWI1Y9GAoRI1ic/hfY1whCVs4ldiM2NHUxngLr7Wkg+yPPsNQvu5d9DKAI/RqyXuoYPPl5Qicq+TuVWsh0dDBniJ00z4iQ3cx/EY8QrHmbuR3Eit9WpKNDVzDf0W4hX6yRlt/jaDM141cxlvcD6FeIXz5C7Xmt+FRexiHlt/ITyKrdTaxeLoKdq5AoOhU9R62OGbwTvAYLDda0OaxuBJRPSglLKA721IM/8e/H8GJ1egOaQx2uQ9g1F9s4HYH7l+25BzmhoXq/zzfxW/Ae5oR6gDOOFZAAAAAElFTkSuQmCC');
+        background-position: center top;
+        background-size: 75% auto;
+    }
+
+    .directory-list li.up:before {
+        /* folder icon if folder class is specified */
+        background-image:   url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFfSURBVEiJ7ZShT8NAFMa/1w6CbAICFBjI/gQkcqZNC8sSDAgEFiTMgGIBAYoEhyfdug6BIJkhgQQsCoXBkUwQEHR9qCal9K7XnuVzd9973y93yXvEzFCV4zfrMOILAHeh122r9JAqwPGbda5FQzDNAgABZ6Hb2y3qM6qEAwADO07gnWoD8sLLQKQAWbgqRAhQCVeB5ALKhBdB/gC8wFsoG56G2H33KH1XyxbFTIsETKtPR5ZCy+mj0hzYgScrOhy4vQORqTQHOvoH6ANaVy1T5jPwrgX4NON5KYDpRQvAFC/JfdYDGMQNkUfA95c1eq0MaHTX5kC8LfIZuBmuDKPKgAniDpimBPaYzPGerB/I2UWJ7L57DKINkc/A5cAOn0sDnGtnJo7MDoG2JH33k0z7ReFAZtk5gbfOwDkAS1DPAE4+rFG76O8T/XoBA5s54W9gegLxI8XGbbjqP6gEJ/oBzE6W0cegtF8AAAAASUVORK5CYII=');
+        background-position: center top;
+        background-size: 75% auto;
+    }
+
 </style>

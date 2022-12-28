@@ -29,46 +29,65 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class DownlordController{
 
-	private static final String FILE_LIST = "FileList";
 	private final AppProperties appProperties;
 
 	@GetMapping("list")
 	public String fileList(@RequestParam(defaultValue = "") String path, Model model){
+		if(File.separatorChar == '\\'){
+			path = path.replace('/', File.separatorChar);
+		}
 		String rootPath = appProperties.getRootPath();
-		Path systemPath = Paths.get(rootPath + File.separator + path);
-		Path normalize = systemPath.normalize();
-		File[] listFiles = systemPath.toFile().listFiles();
-		if(!normalize.toString().startsWith(rootPath) || listFiles == null){
-			model.addAttribute("upperPath", "list");
+		Path systemPath = Paths.get(rootPath + File.separatorChar + path).normalize();
+		File[] files = systemPath.toFile().listFiles();
+		if(!systemPath.startsWith(rootPath) || files == null){
 			model.addAttribute("error", "File or folder does not exist");
 		} else {
-			Set<FileDto> files = getFileDtos(rootPath, listFiles);
-			model.addAttribute("files", files);
-			String pathValue = systemPath.getParent().toString().replaceFirst(rootPath, "");
-			model.addAttribute("upperPath", (pathValue.equals(rootPath) || pathValue.equals("/") ? "" : "list?path=" + pathValue));
+			model.addAttribute("files", getFileDtos(rootPath, files));
+			model.addAttribute("upperPath", getUpperPath(rootPath, systemPath));
 		}
-		return FILE_LIST;
+		model.addAttribute("home", "list");
+		return "FileList";
+	}
+
+	private String getUpperPath(String rootPath, Path systemPath){
+		Path parent = systemPath.getParent();
+		String pathValue = parent != null ? Paths.get(rootPath).relativize(parent).toString() : rootPath;
+		return pathValue.equals(rootPath) || pathValue.equals("/") ? "" : "?path=" + decorateSlash(pathValue);
+	}
+
+	private String decorateSlash(String pathValue){
+		return File.separatorChar == '\\' ? pathValue.replace(File.separatorChar, '/') : pathValue;
 	}
 
 	private Set<FileDto> getFileDtos(String rootPath, File[] listFiles){
 		return Stream.of(listFiles)
 				.filter(File::canRead)
-				.map(file -> FileDto.builder()
-						.directory(file.isDirectory())
-						.name(file.getName())
-						.path((file.isDirectory() ? "list?path=" : "dl?path=") + file.getPath().replaceFirst(rootPath, ""))
-						.build())
-				.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(FileDto::isDirectory).reversed().thenComparing(FileDto::getName))));
+				.map(file -> getBuild(rootPath, file))
+				.collect(Collectors.toCollection(() ->
+						new TreeSet<>(Comparator.comparing(FileDto::isDirectory).reversed()
+								.thenComparing(FileDto::getName))));
+	}
+
+	private FileDto getBuild(String rootPath, File file){
+		Path path = file.toPath();
+		Path root = Paths.get(rootPath);
+		Path relativize = root.relativize(path);
+		return FileDto.builder()
+				.directory(file.isDirectory())
+				.name(file.getName())
+				.path((file.isDirectory() ? "?path=" : "dl?path=") + decorateSlash(relativize.toString()))
+				.build();
 	}
 
 	@GetMapping("dl")
 	public Object dl(@RequestParam(defaultValue = "") String path, Model model){
 		String rootPath = appProperties.getRootPath();
-		FileSystemResource resource = new FileSystemResource(rootPath + File.separator + path);
+		FileSystemResource resource = new FileSystemResource(rootPath + File.separatorChar + path);
 		File file = resource.getFile();
 		if(!file.isFile() || !file.exists() || !file.toPath().normalize().toString().startsWith(rootPath)){
+			model.addAttribute("home", "list");
 			model.addAttribute("error", "File or folder does not exist");
-			return FILE_LIST;
+			return "FileList";
 		}
 		MediaType mediaType = MediaTypeFactory
 				.getMediaType(resource)
@@ -77,7 +96,7 @@ public class DownlordController{
 		headers.setContentType(mediaType);
 		ContentDisposition disposition = ContentDisposition
 				.attachment()
-				.filename(Objects.requireNonNull(resource.getFilename()))
+				.filename(file.getName())
 				.build();
 		headers.setContentDisposition(disposition);
 		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
