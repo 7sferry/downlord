@@ -52,7 +52,7 @@ public class DownlordController{
 	private String getUpperPath(String rootPath, Path systemPath){
 		Path parent = systemPath.getParent();
 		String pathValue = parent != null ? Paths.get(rootPath).relativize(parent).toString() : rootPath;
-		return pathValue.equals(rootPath) || pathValue.equals("/") ? "" : "?path=" + decorateSlash(pathValue);
+		return pathValue.equals(rootPath) || pathValue.startsWith("..") || pathValue.equals("/") ? "" : "?path=" + decorateSlash(pathValue);
 	}
 
 	private String decorateSlash(String pathValue){
