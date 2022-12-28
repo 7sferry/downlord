@@ -19,7 +19,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -80,7 +79,7 @@ public class DownlordController{
 	}
 
 	@GetMapping("dl")
-	public Object dl(@RequestParam(defaultValue = "") String path, Model model){
+	public Object download(@RequestParam(defaultValue = "") String path, Model model){
 		String rootPath = appProperties.getRootPath();
 		FileSystemResource resource = new FileSystemResource(rootPath + File.separatorChar + path);
 		File file = resource.getFile();
@@ -89,17 +88,23 @@ public class DownlordController{
 			model.addAttribute("error", "File or folder does not exist");
 			return "FileList";
 		}
+		HttpHeaders headers = getHeaders(resource, file);
+		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+	}
+
+	private static HttpHeaders getHeaders(FileSystemResource resource, File file){
 		MediaType mediaType = MediaTypeFactory
 				.getMediaType(resource)
 				.orElse(MediaType.APPLICATION_OCTET_STREAM);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(mediaType);
 		ContentDisposition disposition = ContentDisposition
 				.attachment()
 				.filename(file.getName())
 				.build();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(mediaType);
 		headers.setContentDisposition(disposition);
-		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+		return headers;
 	}
 
 }
