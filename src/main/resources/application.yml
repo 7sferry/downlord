@@ -1,7 +1,13 @@
 server:
   port: 8765
+  error:
+    whitelabel:
+      enabled: false
 
 app:
   root-path: 'C:\'
 
-
+spring:
+  devtools:
+    restart:
+      enabled: false

@@ -30,7 +30,7 @@ public class DownlordController{
 
 	private final AppProperties appProperties;
 
-	@GetMapping("list")
+	@GetMapping("/")
 	public String fileList(@RequestParam(defaultValue = "") String path, Model model){
 		if(File.separatorChar == '\\'){
 			path = path.replace('/', File.separatorChar);
@@ -44,14 +44,14 @@ public class DownlordController{
 			model.addAttribute("files", getFileDtos(rootPath, files));
 			model.addAttribute("upperPath", getUpperPath(rootPath, systemPath));
 		}
-		model.addAttribute("home", "list");
+		model.addAttribute("home", "/");
 		return "FileList";
 	}
 
 	private String getUpperPath(String rootPath, Path systemPath){
 		Path parent = systemPath.getParent();
 		String pathValue = parent != null ? Paths.get(rootPath).relativize(parent).toString() : rootPath;
-		return pathValue.equals(rootPath) || pathValue.startsWith("..") || pathValue.equals("/") ? "" : "?path=" + decorateSlash(pathValue);
+		return pathValue.equals(rootPath) || pathValue.equals("/") || pathValue.startsWith("..") ? "" : "?path=" + decorateSlash(pathValue);
 	}
 
 	private String decorateSlash(String pathValue){
@@ -83,8 +83,8 @@ public class DownlordController{
 		String rootPath = appProperties.getRootPath();
 		FileSystemResource resource = new FileSystemResource(rootPath + File.separatorChar + path);
 		File file = resource.getFile();
-		if(!file.isFile() || !file.exists() || !file.toPath().normalize().toString().startsWith(rootPath)){
-			model.addAttribute("home", "list");
+		if(!file.isFile() || !file.exists() || !file.toPath().normalize().startsWith(rootPath)){
+			model.addAttribute("home", "/");
 			model.addAttribute("error", "File or folder does not exist");
 			return "FileList";
 		}
