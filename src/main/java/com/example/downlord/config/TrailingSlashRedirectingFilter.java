@@ -29,12 +29,12 @@ public class TrailingSlashRedirectingFilter extends OncePerRequestFilter{
 				.fromRequest(request)
 				.build()
 				.toString();
-		String URI = request.getRequestURI();
-		if (fullURL.endsWith("/") && !URI.equals("/")) {
+		String uri = request.getRequestURI();
+		if (fullURL.endsWith("/") && !uri.equals("/")) {
 			fullURL = fullURL.substring(0, fullURL.length() - 1);
 			response.setStatus(HttpStatus.MOVED_PERMANENTLY.value());
 			response.setHeader(HttpHeaders.LOCATION, fullURL);
-		} else if(URI.isEmpty()){
+		} else if(uri.isEmpty()){
 			response.setStatus(HttpStatus.MOVED_PERMANENTLY.value());
 			response.setHeader(HttpHeaders.LOCATION, fullURL + '/');
 		} else {
