@@ -5,7 +5,7 @@ server:
       enabled: false
 
 app:
-  root-path: 'C:\'
+  root-path: '/usr/share/downlord/'
 
 spring:
   devtools:
