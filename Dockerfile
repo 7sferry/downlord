@@ -8,9 +8,10 @@ WORKDIR /workspace/app
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
-COPY src src
+RUN ./mvnw dependency:go-offline
 
-RUN ./mvnw install -DskipTests
+COPY src src
+RUN ./mvnw package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:17-jre-alpine
