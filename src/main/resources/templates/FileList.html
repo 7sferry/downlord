@@ -14,8 +14,8 @@
 
 <div class="box">
 	<ul class="directory-list">
-		<li class="home"><a th:href="${home}">home</a></li>
-		<li class="up" th:if="${!(upperPath?.isEmpty()?:true)}"><a th:href="${upperPath}">up ..</a></li>
+		<li class="home"><a th:href="${'/'}">home</a></li>
+		<li class="up" th:if="${!(upperPath?.isEmpty()?:true)}"><a th:href="${upperPath == '?path=' ? '/' : upperPath}">up ..</a></li>
 	</ul>
 	<h3 th:if="${!(error?.isEmpty()?:true)}" th:text="${error}"></h3>
 	<ul class="directory-list" th:each="file: ${files}">

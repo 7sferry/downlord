@@ -18,7 +18,6 @@ public class ErrorHandlingConroller implements ErrorController{
 
 	@RequestMapping("/error")
 	public String handleError(HttpServletResponse response, Model model){
-		model.addAttribute("home", "/");
 		String errorValue = response.getStatus() == HttpStatus.NOT_FOUND.value() ? "File or folder does not exist" : "ERROR";
 		model.addAttribute("error", errorValue);
 		return "FileList";
