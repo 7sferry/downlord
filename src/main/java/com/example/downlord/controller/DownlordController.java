@@ -8,6 +8,7 @@ package com.example.downlord.controller;
 import com.example.downlord.config.AppProperties;
 import com.example.downlord.dto.FileDto;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
@@ -55,8 +57,9 @@ public class DownlordController{
 		return pathValue == null || pathValue.startsWith("..") ? "" : "?path=" + decorateSlash(pathValue);
 	}
 
+	@SneakyThrows
 	private String decorateSlash(String pathValue){
-		return File.separatorChar == '\\' ? pathValue.replace(File.separatorChar, '/') : pathValue;
+		return URLEncoder.encode(File.separatorChar == '\\' ? pathValue.replace(File.separatorChar, '/') : pathValue, "UTF-8");
 	}
 
 	private Set<FileDto> getFileDtos(String rootPath, File[] listFiles){
