@@ -15,25 +15,72 @@
 <div class="box">
 	<ul class="directory-list">
 		<li class="home"><a th:href="${'/'}">home</a></li>
-		<li class="up" th:if="${!(upperPath?.isEmpty()?:true)}"><a th:href="${upperPath == '?path=' ? '/' : upperPath}">up ..</a></li>
+		<li class="up" th:if="${!(upperPath?.isEmpty()?:true)}"><a th:href="${upperPath == '?path=' ? '/' : upperPath}">up
+		                                                                                                                ..</a>
+		</li>
 	</ul>
 	<h3 th:if="${!(error?.isEmpty()?:true)}" th:text="${error}"></h3>
-	<ul class="directory-list" th:each="file: ${files}">
-		<li th:classappend="${file?.directory ? 'folder' : ''}"><a th:href="${file?.path}" th:text="${file?.name}"></a></li>
-	</ul>
+	<table th:if="${error?.isEmpty()?:true}" class="directory-list">
+		<tr class="header">
+			<th class="name-header"><a th:href="@{${upperPath == '?path=' ? '/' : upperPath}(
+					sortBy='NAME',
+					direction=${(param.sortBy != null and param.sortBy[0] == 'NAME' and param.direction != null and param.direction[0] == 'ASC') ? 'DESC' : 'ASC'}
+				)}">
+				Name <span th:if="${param.sortBy == null or param.sortBy[0] == 'NAME'}"
+				           th:text="${param.direction == null or param.direction[0] == 'ASC' ? '▲' : '▼'}"></span>
+			</a></th>
+			<th><a th:href="@{${upperPath == '?path=' ? '/' : upperPath}(
+					sortBy='DATE_CREATED',
+					direction=${(param.sortBy != null and param.sortBy[0] == 'DATE_CREATED' and param.direction != null and param.direction[0] == 'ASC') ? 'DESC' : 'ASC'}
+				)}">
+				Date Created <span th:if="${param.sortBy != null and param.sortBy[0] == 'DATE_CREATED'}"
+				           th:text="${param.direction != null and param.direction[0] == 'ASC' ? '▲' : '▼'}"></span>
+			</a></th>
+			<th><a th:href="@{${upperPath == '?path=' ? '/' : upperPath}(
+					sortBy='DATE_MODIFIED',
+					direction=${(param.sortBy != null and param.sortBy[0] == 'DATE_MODIFIED' and param.direction != null and param.direction[0] == 'ASC') ? 'DESC' : 'ASC'}
+				)}">
+				Date Modified <span th:if="${param.sortBy != null and param.sortBy[0] == 'DATE_MODIFIED'}"
+				                   th:text="${param.direction != null and param.direction[0] == 'ASC' ? '▲' : '▼'}"></span>
+			</a></th>
+		</tr>
+		<th:block th:each="file: ${files}">
+			<tr th:classappend="${file?.directory ? 'folder' : 'file'}">
+				<td class="item-name" ><a th:href="${file?.path}" th:text="${file?.name}">tes</a></td>
+				<td class="date-created" th:text="${#temporals.format(file?.dateCreated, 'yyyy-MM-dd HH:mm')}">2000</td>
+				<td class="date-modified" th:text="${#temporals.format(file?.dateModified, 'yyyy-MM-dd HH:mm')}">2020</td>
+			</tr>
+		</th:block>
+	</table>
 </div>
 </body>
 </html>
 
 <style>
     body {
+        color: #aaa;
         background: rgb(34, 36, 38);
         font-family: "times new roman", serif;
         line-height: 30px;
     }
 
+    .item-name {
+	    width: 80%;
+	    max-width: 200px;      /* or whatever width you want */
+        white-space: nowrap;   /* prevent wrapping to new line */
+        overflow: hidden;      /* hide overflowing text */
+        text-overflow: ellipsis; /* show ... when text overflows */
+    }
+
+    .date-created {
+	    width: 10%;
+    }
+
+    .date-modified {
+	    width: 10%;
+    }
+
     h2 {
-        color: #aaa;
         font-size: 30px;
         line-height: 40px;
         font-style: italic;
@@ -51,10 +98,13 @@
         padding: 5%;
     }
 
+    .name-header {
+	    text-align: left;
+    }
+
     @media (min-width: 544px) {
         .box {
             margin: 40px auto;
-            max-width: 440px;
             padding: 40px;
         }
     }
@@ -69,9 +119,8 @@
         border-left: 1px dashed #ddd;
     }
 
-    .directory-list li {
+    .directory-list tr, .directory-list li {
         list-style: none;
-        color: #888;
         font-size: 17px;
         font-style: italic;
         font-weight: normal;
@@ -79,14 +128,12 @@
 
     .directory-list a {
         border-bottom: 1px solid transparent;
-        color: #888;
+        color: #aaa;
         text-decoration: none;
         transition: all 0.2s ease;
     }
 
-    .directory-list .folder,
-    .directory-list .folder > a {
-        color: #777;
+    .directory-list .folder {
         font-weight: bold;
     }
 
@@ -94,7 +141,7 @@
     /* The icons
 	-------------------------------------------------------------- */
 
-    .directory-list li:before {
+    .directory-list .file:before {
         margin-right: 10px;
         content: "";
         height: 20px;
@@ -108,25 +155,59 @@
         background-size: 60% auto;
     }
 
-    .directory-list li.folder:before {
+    .directory-list .header:before {
+        margin-right: 10px;
+        content: "";
+        height: 20px;
+        vertical-align: middle;
+        width: 20px;
+        background-repeat: no-repeat;
+        display: inline-block;
+        /* file icon by default */
+        background-position: center 2px;
+        background-size: 60% auto;
+    }
+
+    .directory-list .folder:before {
         /* folder icon if folder class is specified */
         background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='lightblue' d='M96.429,37.5v39.286c0,3.423-1.228,6.361-3.684,8.817c-2.455,2.455-5.395,3.683-8.816,3.683H16.071 c-3.423,0-6.362-1.228-8.817-3.683c-2.456-2.456-3.683-5.395-3.683-8.817V23.214c0-3.422,1.228-6.362,3.683-8.817 c2.455-2.456,5.394-3.683,8.817-3.683h17.857c3.422,0,6.362,1.228,8.817,3.683c2.455,2.455,3.683,5.395,3.683,8.817V25h37.5 c3.422,0,6.361,1.228,8.816,3.683C95.201,31.138,96.429,34.078,96.429,37.5z' /></svg>");
         background-position: center top;
         background-size: 75% auto;
+        margin-right: 10px;
+        content: "";
+        height: 20px;
+        vertical-align: middle;
+        width: 20px;
+        background-repeat: no-repeat;
+        display: inline-block;
     }
 
-    .directory-list li.home:before {
+    .home:before {
         /* folder icon if folder class is specified */
-        background-image:  url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxkZWZzPjxmaWx0ZXIgaWQ9ImRhcmtyZWFkZXItaW1hZ2UtZmlsdGVyIj48ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMC4yNDkgLTAuNjE0IC0wLjY3MiAwLjAwMCAxLjAzNSAtMC42NDYgMC4yODggLTAuNjY0IDAuMDAwIDEuMDIwIC0wLjYzNiAtMC42MDkgMC4yNTAgMC4wMDAgMC45OTQgMC4wMDAgMC4wMDAgMC4wMDAgMS4wMDAgMC4wMDAiIC8+PC9maWx0ZXI+PC9kZWZzPjxpbWFnZSB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbHRlcj0idXJsKCNkYXJrcmVhZGVyLWltYWdlLWZpbHRlcikiIHhsaW5rOmhyZWY9ImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQmdBQUFBWUNBWUFBQURnZHozNEFBQUFCSE5DU1ZRSUNBZ0lmQWhraUFBQUFBbHdTRmx6QUFBQXVRQUFBTGtCNHFkQjZBQUFBQmwwUlZoMFUyOW1kSGRoY21VQWQzZDNMbWx1YTNOallYQmxMbTl5WjV2dVBCb0FBQUdIU1VSQlZFaUozZGF4YXhSUkVBYnczMU1MSlZXNm1CTXJTV3FEb0JhQ1JScjdGQ0xFUHlEYXBVdGxrejRHVXFlMXNwYzBJb2pGRWJBTldLWHhLcnNqQVdQRzRtYmozckc1MjVOY29ROCsySjAzMy9leE0yOW50MFNFV2E1ck0xWEhqYmFKcFpSYmVKNjM3eUxpSk9QemVJM3J1ZmNoSXI1Y0VDTmlJbkFIaDRqRUlUcTU5N1FXRCt6VXVSTkxWRXA1aUM1V2F1RVZkRXNwRHlieHh4cVVVbDdnSXhad2hsZUpNOXpHSjZ5TmRiaWtKQVhiL2p6MkQ2emlXV0kxWTlHQW9SSTFpYy9oZlkxd2hDVnM0bGRpTTJOSFV4bmdMcjdXa2creVBQc05RdnU1ZDlES0FJL1JxeVh1b1lQUGw1UWljcStUdVZXc2gwZERCbmlKMDB6NGlRM2N4L0VZOFFySG1idVIzRWl0OVdwS05EVnpEZjBXNGhYNnlSbHQvamFETTE0MWN4bHZjRDZGZUlYejVDN1htdCtGUmV4aUhsdC9JVHlLcmRUYXhlTG9LZHE1QW9PaFU5UjYyT0did1R2QVlMRGRhME9heHVCSlJQU2dsTEtBNzIxSU0vOGUvSDhHSjFlZ09hUXgydVE5ZzFGOXM0SFlIN2wrMjVCem1ob1hxL3p6ZnhXL0FlNW9SNmdET09GWkFBQUFBRWxGVGtTdVFtQ0MiIC8+PC9zdmc+");
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxkZWZzPjxmaWx0ZXIgaWQ9ImRhcmtyZWFkZXItaW1hZ2UtZmlsdGVyIj48ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMC4yNDkgLTAuNjE0IC0wLjY3MiAwLjAwMCAxLjAzNSAtMC42NDYgMC4yODggLTAuNjY0IDAuMDAwIDEuMDIwIC0wLjYzNiAtMC42MDkgMC4yNTAgMC4wMDAgMC45OTQgMC4wMDAgMC4wMDAgMC4wMDAgMS4wMDAgMC4wMDAiIC8+PC9maWx0ZXI+PC9kZWZzPjxpbWFnZSB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbHRlcj0idXJsKCNkYXJrcmVhZGVyLWltYWdlLWZpbHRlcikiIHhsaW5rOmhyZWY9ImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQmdBQUFBWUNBWUFBQURnZHozNEFBQUFCSE5DU1ZRSUNBZ0lmQWhraUFBQUFBbHdTRmx6QUFBQXVRQUFBTGtCNHFkQjZBQUFBQmwwUlZoMFUyOW1kSGRoY21VQWQzZDNMbWx1YTNOallYQmxMbTl5WjV2dVBCb0FBQUdIU1VSQlZFaUozZGF4YXhSUkVBYnczMU1MSlZXNm1CTXJTV3FEb0JhQ1JScjdGQ0xFUHlEYXBVdGxrejRHVXFlMXNwYzBJb2pGRWJBTldLWHhLcnNqQVdQRzRtYmozckc1MjVOY29ROCsySjAzMy9leE0yOW50MFNFV2E1ck0xWEhqYmFKcFpSYmVKNjM3eUxpSk9QemVJM3J1ZmNoSXI1Y0VDTmlJbkFIaDRqRUlUcTU5N1FXRCt6VXVSTkxWRXA1aUM1V2F1RVZkRXNwRHlieHh4cVVVbDdnSXhad2hsZUpNOXpHSjZ5TmRiaWtKQVhiL2p6MkQ2emlXV0kxWTlHQW9SSTFpYy9oZlkxd2hDVnM0bGRpTTJOSFV4bmdMcjdXa2creVBQc05RdnU1ZDlES0FJL1JxeVh1b1lQUGw1UWljcStUdVZXc2gwZERCbmlKMDB6NGlRM2N4L0VZOFFySG1idVIzRWl0OVdwS05EVnpEZjBXNGhYNnlSbHQvamFETTE0MWN4bHZjRDZGZUlYejVDN1htdCtGUmV4aUhsdC9JVHlLcmRUYXhlTG9LZHE1QW9PaFU5UjYyT0did1R2QVlMRGRhME9heHVCSlJQU2dsTEtBNzIxSU0vOGUvSDhHSjFlZ09hUXgydVE5ZzFGOXM0SFlIN2wrMjVCem1ob1hxL3p6ZnhXL0FlNW9SNmdET09GWkFBQUFBRWxGVGtTdVFtQ0MiIC8+PC9zdmc+");
         background-position: center top;
         background-size: 75% auto;
+        margin-right: 10px;
+        content: "";
+        height: 20px;
+        vertical-align: middle;
+        width: 20px;
+        background-repeat: no-repeat;
+        display: inline-block;
     }
 
-    .directory-list li.up:before {
+    .up:before {
         /* folder icon if folder class is specified */
-        background-image:   url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFfSURBVEiJ7ZShT8NAFMa/1w6CbAICFBjI/gQkcqZNC8sSDAgEFiTMgGIBAYoEhyfdug6BIJkhgQQsCoXBkUwQEHR9qCal9K7XnuVzd9973y93yXvEzFCV4zfrMOILAHeh122r9JAqwPGbda5FQzDNAgABZ6Hb2y3qM6qEAwADO07gnWoD8sLLQKQAWbgqRAhQCVeB5ALKhBdB/gC8wFsoG56G2H33KH1XyxbFTIsETKtPR5ZCy+mj0hzYgScrOhy4vQORqTQHOvoH6ANaVy1T5jPwrgX4NON5KYDpRQvAFC/JfdYDGMQNkUfA95c1eq0MaHTX5kC8LfIZuBmuDKPKgAniDpimBPaYzPGerB/I2UWJ7L57DKINkc/A5cAOn0sDnGtnJo7MDoG2JH33k0z7ReFAZtk5gbfOwDkAS1DPAE4+rFG76O8T/XoBA5s54W9gegLxI8XGbbjqP6gEJ/oBzE6W0cegtF8AAAAASUVORK5CYII=');
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFfSURBVEiJ7ZShT8NAFMa/1w6CbAICFBjI/gQkcqZNC8sSDAgEFiTMgGIBAYoEhyfdug6BIJkhgQQsCoXBkUwQEHR9qCal9K7XnuVzd9973y93yXvEzFCV4zfrMOILAHeh122r9JAqwPGbda5FQzDNAgABZ6Hb2y3qM6qEAwADO07gnWoD8sLLQKQAWbgqRAhQCVeB5ALKhBdB/gC8wFsoG56G2H33KH1XyxbFTIsETKtPR5ZCy+mj0hzYgScrOhy4vQORqTQHOvoH6ANaVy1T5jPwrgX4NON5KYDpRQvAFC/JfdYDGMQNkUfA95c1eq0MaHTX5kC8LfIZuBmuDKPKgAniDpimBPaYzPGerB/I2UWJ7L57DKINkc/A5cAOn0sDnGtnJo7MDoG2JH33k0z7ReFAZtk5gbfOwDkAS1DPAE4+rFG76O8T/XoBA5s54W9gegLxI8XGbbjqP6gEJ/oBzE6W0cegtF8AAAAASUVORK5CYII=');
         background-position: center top;
         background-size: 75% auto;
+        margin-right: 10px;
+        content: "";
+        height: 20px;
+        vertical-align: middle;
+        width: 20px;
+        background-repeat: no-repeat;
+        display: inline-block;
     }
 
 </style>

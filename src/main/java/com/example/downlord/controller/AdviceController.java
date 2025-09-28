@@ -16,7 +16,7 @@ public class AdviceController{
 
 	@ExceptionHandler(FileNotFoundException.class)
 	public String handleFileNotFoundException(FileNotFoundException e, Model model) {
-		model.addAttribute("error", "File or folder at '/home/" + e.getMessage() + "' does not exist");
+		model.addAttribute("error", "File or folder at '/home/" + e.getMessage() + "' does not exist or is not readable");
 		return "FileList";
 	}
 
