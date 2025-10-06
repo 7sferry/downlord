@@ -22,21 +22,24 @@
 	<h3 th:if="${!(error?.isEmpty()?:true)}" th:text="${error}"></h3>
 	<table th:if="${error?.isEmpty()?:true}" class="directory-list">
 		<tr class="header">
-			<th class="name-header"><a th:href="@{${upperPath == '?path=' ? '/' : upperPath}(
+			<th class="name-header"><a th:href="@{/(
+					path=${param.path},
 					sortBy='NAME',
-					direction=${(param.sortBy != null and param.sortBy[0] == 'NAME' and param.direction != null and param.direction[0] == 'ASC') ? 'DESC' : 'ASC'}
+					direction=${((param.sortBy == null or param.sortBy[0] == 'NAME') and (param.direction == null or param.direction[0] == 'ASC')) ? 'DESC' : 'ASC'}
 				)}">
 				Name <span th:if="${param.sortBy == null or param.sortBy[0] == 'NAME'}"
 				           th:text="${param.direction == null or param.direction[0] == 'ASC' ? '▲' : '▼'}"></span>
 			</a></th>
-			<th><a th:href="@{${upperPath == '?path=' ? '/' : upperPath}(
+			<th><a th:href="@{/(
+					path=${param.path},
 					sortBy='DATE_CREATED',
 					direction=${(param.sortBy != null and param.sortBy[0] == 'DATE_CREATED' and param.direction != null and param.direction[0] == 'ASC') ? 'DESC' : 'ASC'}
 				)}">
 				Date Created <span th:if="${param.sortBy != null and param.sortBy[0] == 'DATE_CREATED'}"
 				           th:text="${param.direction != null and param.direction[0] == 'ASC' ? '▲' : '▼'}"></span>
 			</a></th>
-			<th><a th:href="@{${upperPath == '?path=' ? '/' : upperPath}(
+			<th><a th:href="@{/(
+					path=${param.path},
 					sortBy='DATE_MODIFIED',
 					direction=${(param.sortBy != null and param.sortBy[0] == 'DATE_MODIFIED' and param.direction != null and param.direction[0] == 'ASC') ? 'DESC' : 'ASC'}
 				)}">
@@ -46,9 +49,9 @@
 		</tr>
 		<th:block th:each="file: ${files}">
 			<tr th:classappend="${file?.directory ? 'folder' : 'file'}">
-				<td class="item-name" ><a th:href="${file?.path}" th:text="${file?.name}">tes</a></td>
-				<td class="date-created" th:text="${#temporals.format(file?.dateCreated, 'yyyy-MM-dd HH:mm')}">2000</td>
-				<td class="date-modified" th:text="${#temporals.format(file?.dateModified, 'yyyy-MM-dd HH:mm')}">2020</td>
+				<td class="item-name" ><a th:href="${file?.path}" th:text="${file?.name}"></a></td>
+				<td class="date-created" th:text="${#temporals.format(file?.dateCreated, 'yyyy-MM-dd HH:mm')}"></td>
+				<td class="date-modified" th:text="${#temporals.format(file?.dateModified, 'yyyy-MM-dd HH:mm')}"></td>
 			</tr>
 		</th:block>
 	</table>
@@ -65,7 +68,7 @@
     }
 
     .item-name {
-	    width: 80%;
+	    width: 60%;
 	    max-width: 200px;      /* or whatever width you want */
         white-space: nowrap;   /* prevent wrapping to new line */
         overflow: hidden;      /* hide overflowing text */
@@ -73,11 +76,11 @@
     }
 
     .date-created {
-	    width: 10%;
+	    width: 20%;
     }
 
     .date-modified {
-	    width: 10%;
+	    width: 20%;
     }
 
     h2 {
